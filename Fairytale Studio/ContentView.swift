@@ -611,6 +611,7 @@ struct BookEditorView: View {
     @State private var showingLayerPanel = false
     @State private var showingFontPicker = false
     @State private var selectedTextID: UUID? = nil
+    @State private var placeOnLeft = true
 
     // sorted pages so order is always correct
     var sortedPages: [BookPage] {
@@ -725,12 +726,17 @@ struct BookEditorView: View {
                                         if openCategory == .backgrounds {
                                             page.backgroundImageName = asset.name
                                         } else {
-                                            var newAsset = PlacedAsset(imageName: asset.name, offset: .zero)
-                                            newAsset.importedImage = importedImages[asset.name]
+                                            var newAsset = PlacedAsset(
+                                                imageName: asset.name,
+                                                offset: CGSize(width: placeOnLeft ? -200 : 200, height: 0)
+                                            )
                                             newAsset.displayName = asset.displayName
+                                            newAsset.importedImage = importedImages[asset.name]
                                             newAsset.zIndex = Double(page.placedAssets.count)
                                             page.placedAssets.append(newAsset)
+                                            placeOnLeft.toggle()
                                         }
+
                                     },
                                     onImageImported: { image, subcategoryID, name in
                                         let imageID = UUID().uuidString
@@ -1146,6 +1152,7 @@ struct BookPagesView: View {
                     .frame(height: geo.size.height * 1.25)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.bottom, 45)
+                    .allowsHitTesting(false) // spine is visual only, never blocks taps
             }
             .frame(width: geo.size.width, height: geo.size.height)
             // no .clipped() here so selection handles can show outside book
